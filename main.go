@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -18,7 +17,7 @@ func main() {
 	//ket noi voi bien moi truong
 	_ = godotenv.Load(".env")
 
-	//nguon: https://gorm.io/docs/connecting_to_the_database.html
+	//nguồn: https://gorm.io/docs/connecting_to_the_database.html
 	dsn := os.Getenv("DB_CONNECT")
 	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -26,8 +25,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(db)
 
 	now := time.Now().UTC()
 
@@ -45,16 +42,16 @@ func main() {
 
 	//CRUD
 
-	v1 := r.Group("/v1")
+	api := r.Group("/go")
 
 	{
-		item := v1.Group("/item")
+		item := api.Group("/item")
 		{
 			item.POST("", CreateItem(db))
-			item.GET("")
-			item.GET("/:id")
-			item.PATCH("/:id")
-			item.DELETE("/:id")
+			item.GET("", ListItem(db))
+			item.GET("/:id", GetItem(db))
+			item.PATCH("/:id", UpdateItem(db))
+			item.DELETE("/:id", DeleteItem(db))
 		}
 	}
 	//đăng ký URL ping, hàm xử lý của router là func(c *gin.Context), truyền vào 1 con trỏ
@@ -77,20 +74,20 @@ type TodoItem struct {
 	Title       string     `json:"title" gorm:"column:title;"`
 	Description string     `json:"description" gorm:"column:description;"`
 	Status      string     `json:"status" gorm:"column:status;"`
-	CreatedAt   *time.Time `json:"createdAt" gorm:"column:created_at"`
-	UpdatedAt   *time.Time `json:"updatedAt,omitempty" gorm:"column:updated_at"`
+	CreatedAt   *time.Time `json:"created_at" gorm:"column:created_at"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 }
+
+func (TodoItem) TableName() string { return "todo_items" }
 
 type TodoItemCreation struct {
 	Id          string    `json:"id" gorm:"column:id;"`
 	Title       string    `json:"title" gorm:"column:title;"`
 	Description string    `json:"description" gorm:"column:description;"`
 	Status      string    `json:"status" gorm:"column:status;"`
-	CreatedAt   time.Time `json:"createdAt" gorm:"column:created_at"`
-	UpdatedAt   time.Time `json:"updatedAt" gorm:"column:updated_at"`
+	CreatedAt   time.Time `json:"created_at" gorm:"column:created_at"`
+	UpdatedAt   time.Time `json:"updated_at" gorm:"column:updated_at"`
 }
-
-func (TodoItem) TableName() string { return "todo_items" }
 
 func (TodoItemCreation) TableName() string { return TodoItem{}.TableName() }
 
@@ -123,15 +120,15 @@ func CreateItem(db *gorm.DB) func(*gin.Context) {
 func GetItem(db *gorm.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var data TodoItem
-		id, err := strconv.Atoi(c.Param("id"))
+		id := c.Param("id")
 
-		if err != nil {
+		if err := c.ShouldBind(&data); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		data.Id = string(id)
+		//data.Id = string(id)
 		if err := db.Where("id = ?", id).First(&data).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
@@ -140,7 +137,115 @@ func GetItem(db *gorm.DB) func(*gin.Context) {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"data": data.Id,
+			"data": data,
+		})
+	}
+}
+
+type TodoItemUpdate struct {
+	Id          *string   `json:"id" gorm:"column:id;"` //Dùng con trỏ, xử lý trường hợp truyền vào chuỗi rỗng thì bị bỏ qua
+	Title       *string   `json:"title" gorm:"column:title;"`
+	Description *string   `json:"description" gorm:"column:description;"`
+	Status      *string   `json:"status" gorm:"column:status;"`
+	CreatedAt   time.Time `json:"created_at" gorm:"column:created_at"`
+	UpdatedAt   time.Time `json:"updated_at" gorm:"column:updated_at"`
+}
+
+func (TodoItemUpdate) TableName() string { return TodoItem{}.TableName() }
+
+type Paging struct {
+	Page  int   `json:"page" form:"page"` //parse từ form
+	Limit int   `json:"limit" form:"limit"`
+	Total int64 `json:"total" form:"-"`
+}
+
+func (p *Paging) Process() {
+	if p.Page <= 0 {
+		p.Page = 1
+	}
+
+	if p.Limit <= 0 || p.Limit >= 100 {
+		p.Limit = 10
+	}
+}
+
+func UpdateItem(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var data TodoItemUpdate
+		id := c.Param("id")
+		data.UpdatedAt = time.Now()
+		if err := c.ShouldBind(&data); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if err := db.Where("id = ?", id).Updates(&data).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"nofi": "Updated Successfully",
+		})
+	}
+}
+
+func DeleteItem(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var data TodoItem
+		id := c.Param("id")
+
+		if err := c.ShouldBind(&data); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		//data.Id = string(id)
+		if err := db.Table(TodoItem{}.TableName()).Where("id = ?", id).Updates(map[string]interface{}{
+			"Status": "Deleted", //nếu không ghi đúng dữ liệu enumerate thì database bị bỏ trống
+		}).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"nofi": "Deleted Successfully",
+		})
+	}
+}
+
+func ListItem(db *gorm.DB) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var paging Paging
+
+		if err := c.ShouldBind(&paging); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		paging.Process()
+
+		fmt.Println(paging)
+
+		var result []TodoItem
+
+		//Order("id desc") - sort
+		if err := db.Order("title desc").Offset((paging.Page - 1) * paging.Limit).Limit(paging.Limit).Find(&result).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"all item": result,
 		})
 	}
 }
