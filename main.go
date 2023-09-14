@@ -151,7 +151,8 @@ func GetItem(db *gorm.DB) func(*gin.Context) {
 
 // tao struct TodoItemUpdate va xac dinh truong tuong ung trong database bang gorm
 type TodoItemUpdate struct {
-	Id          *string   `json:"id" gorm:"column:id;"` //Dùng con trỏ, xử lý trường hợp truyền vào chuỗi rỗng thì bị bỏ qua
+	//Dùng con trỏ, xử lý trường hợp truyền vào chuỗi rỗng thì bị bỏ qua
+	Id          *string   `json:"id" gorm:"column:id;"`
 	Title       *string   `json:"title" gorm:"column:title;"`
 	Description *string   `json:"description" gorm:"column:description;"`
 	Status      *string   `json:"status" gorm:"column:status;"`
