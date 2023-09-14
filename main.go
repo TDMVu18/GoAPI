@@ -13,6 +13,18 @@ import (
 	"time"
 )
 
+type ItemStatus int
+
+const (
+	ItemStatusDoing ItemStatus = iota
+	ItemStatusDone
+	ItemStatusDeleted
+)
+
+//func (item *ItemStatus) Scan(value interface{}) error {
+//
+//}
+
 func main() {
 	//ket noi voi bien moi truong
 	_ = godotenv.Load(".env")
@@ -22,27 +34,19 @@ func main() {
 	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
+	//bat loi ket noi database
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	now := time.Now().UTC()
-
 	//code mẫu của youtube {Lập trình REST API với Golang - Viet Tran}
-	item := TodoItem{
-		Id:          "",
-		Title:       "This is Item 1",
-		Description: "Description of Item 1",
-		Status:      "Doing	",
-		CreatedAt:   &now,
-		UpdatedAt:   &now,
-	}
+	var item TodoItem
 
 	r := gin.Default() //tạo 1 instance của gin.Engine - dùng để định nghĩa các router
 
 	//CRUD
 
-	api := r.Group("/go")
+	api := r.Group("/go") //dinh tuyen group URL, xac dinh cac ham nao se xu ly route nao (.<method>("/url", <ham xu ly>)
 
 	{
 		item := api.Group("/item")
@@ -65,10 +69,11 @@ func main() {
 			"message": "This is information about ***",
 		})
 	})
-	r.Run(":3000")
+	r.Run(":3000") //port ma app se chay tren do
 
 }
 
+// tao struct TodoItem va xac dinh truong tuong ung trong database bang gorm
 type TodoItem struct {
 	Id          string     `json:"id" gorm:"column:id;"`
 	Title       string     `json:"title" gorm:"column:title;"`
@@ -78,8 +83,10 @@ type TodoItem struct {
 	UpdatedAt   *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 }
 
+// tao method TableName cho Struct TodoItem, tra ve ten bang "todo_items"
 func (TodoItem) TableName() string { return "todo_items" }
 
+// tao struct TodoItemCreation va xac dinh truong tuong ung trong database bang gorm
 type TodoItemCreation struct {
 	Id          string    `json:"id" gorm:"column:id;"`
 	Title       string    `json:"title" gorm:"column:title;"`
@@ -89,6 +96,7 @@ type TodoItemCreation struct {
 	UpdatedAt   time.Time `json:"updated_at" gorm:"column:updated_at"`
 }
 
+// tao method TableName cho Struct TodoItemCreation, tra ve ten bang "todo_items"
 func (TodoItemCreation) TableName() string { return TodoItem{}.TableName() }
 
 func CreateItem(db *gorm.DB) func(*gin.Context) {
@@ -100,7 +108,6 @@ func CreateItem(db *gorm.DB) func(*gin.Context) {
 			})
 			return
 		}
-
 		data.Id = uuid.NewV4().String()
 		data.Status = "Doing"
 		data.CreatedAt = time.Now()
@@ -142,6 +149,7 @@ func GetItem(db *gorm.DB) func(*gin.Context) {
 	}
 }
 
+// tao struct TodoItemUpdate va xac dinh truong tuong ung trong database bang gorm
 type TodoItemUpdate struct {
 	Id          *string   `json:"id" gorm:"column:id;"` //Dùng con trỏ, xử lý trường hợp truyền vào chuỗi rỗng thì bị bỏ qua
 	Title       *string   `json:"title" gorm:"column:title;"`
@@ -151,8 +159,10 @@ type TodoItemUpdate struct {
 	UpdatedAt   time.Time `json:"updated_at" gorm:"column:updated_at"`
 }
 
+// tao method TableName cho Struct TodoItemUpdate, tra ve ten bang "todo_items"
 func (TodoItemUpdate) TableName() string { return TodoItem{}.TableName() }
 
+// tao struct Paging va lay du lieu tu form (POSTMAN), dung de phan trang
 type Paging struct {
 	Page  int   `json:"page" form:"page"` //parse từ form
 	Limit int   `json:"limit" form:"limit"`
@@ -223,6 +233,7 @@ func DeleteItem(db *gorm.DB) func(*gin.Context) {
 
 func ListItem(db *gorm.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
+
 		var paging Paging
 
 		if err := c.ShouldBind(&paging); err != nil {
@@ -238,14 +249,25 @@ func ListItem(db *gorm.DB) func(*gin.Context) {
 
 		var result []TodoItem
 
+		if err := db.Table(TodoItem{}.TableName()).Count(&paging.Total).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
+
+		db = db.Where("status <> ?", "Deleted") //SQL query
+
 		//Order("id desc") - sort
-		if err := db.Order("title desc").Offset((paging.Page - 1) * paging.Limit).Limit(paging.Limit).Find(&result).Error; err != nil {
+		if err := db.Order("title desc").
+			Offset((paging.Page - 1) * paging.Limit).
+			Limit(paging.Limit).Find(&result).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"all item": result,
+			"paging":   paging,
 		})
 	}
 }
