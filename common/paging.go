@@ -1,5 +1,6 @@
 package common
 
+// tao struct Paging va lay du lieu tu form (POSTMAN), dung de phan trang
 type Paging struct {
 	Page  int   `json:"page" form:"page"` //parse từ form
 	Limit int   `json:"limit" form:"limit"`
