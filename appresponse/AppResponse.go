@@ -1,5 +1,6 @@
-package common
+package appresponse
 
+// struct khai bao thanh cong
 type SuccessRes struct {
 	Data   interface{} `json:"nofi"`
 	Paging interface{} `json:"paging,omitempty"`
