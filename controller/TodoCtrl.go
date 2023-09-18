@@ -15,7 +15,7 @@ var db *gorm.DB
 
 // khai bao db
 func init() {
-	db = initializer.ConnectDatabase()
+	db = initializer.ConnectMYSQL()
 }
 
 // api tim 1 item bang id
@@ -50,6 +50,12 @@ func CreateItem(ctx *gin.Context) {
 	now := time.Now()
 	data.CreatedAt = &now
 	data.UpdatedAt = &now
+
+	if err := db.Create(&data).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
 
 	ctx.JSON(http.StatusOK, appresponse.SimpleSuccessRes(data))
 }

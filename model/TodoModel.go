@@ -11,23 +11,23 @@ type GenerateItem struct {
 }
 
 type TodoItem struct {
-	GenerateItem        //embedd strcut
+	GenerateItem        //embed struct
 	Title        string `json:"title" gorm:"column:title" form:"title"`
-	Description  string `json:"description" gorm:"column:description" form:"description"`
+	Priority     string `json:"priority" gorm:"column:priority" form:"priority"`
 	Status       string `json:"status" gorm:"column:status" form:"status"`
 }
 
 type TodoItemCreate struct {
-	GenerateItem        //embedd struct
+	GenerateItem        //embed struct
 	Title        string `json:"title" gorm:"column:title"`
-	Description  string `json:"description" gorm:"column:description"`
+	Description  string `json:"priority" gorm:"column:priority"`
 	Status       string `json:"status" gorm:"column:status"`
 }
 
 type TodoItemUpdate struct {
-	GenerateItem        //embedd struct
+	GenerateItem        //embed struct
 	Title        string `json:"title" gorm:"column:title"`
-	Description  string `json:"description" gorm:"column:description"`
+	Description  string `json:"priority" gorm:"column:priority"`
 	Status       string `json:"status" gorm:"column:status"`
 }
 

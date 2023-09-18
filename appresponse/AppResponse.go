@@ -2,15 +2,13 @@ package appresponse
 
 // struct khai bao thanh cong
 type SuccessRes struct {
-	Data   interface{} `json:"nofi"`
-	Paging interface{} `json:"paging,omitempty"`
-	Filter interface{} `json:"filter,omitempty"`
+	Data interface{} `json:"nofi"`
 }
 
 func NewSuccessRes(data, page, filter interface{}) *SuccessRes {
-	return &SuccessRes{Data: data, Paging: page, Filter: filter}
+	return &SuccessRes{Data: data}
 }
 
 func SimpleSuccessRes(data interface{}) *SuccessRes {
-	return &SuccessRes{Data: data, Paging: nil, Filter: nil}
+	return &SuccessRes{Data: data}
 }

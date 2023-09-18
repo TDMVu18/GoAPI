@@ -1,7 +1,10 @@
 package initializer
 
 import (
+	"context"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -16,7 +19,7 @@ func ConnectEnv() {
 	}
 }
 
-func ConnectDatabase() *gorm.DB {
+func ConnectMYSQL() *gorm.DB {
 	ConnectEnv()
 	dsn := os.Getenv("DB_CONNECT")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -25,4 +28,14 @@ func ConnectDatabase() *gorm.DB {
 		log.Fatalf("can't connect to database, error: %s", err)
 	}
 	return db
+}
+
+func ConnectMongo() *mongo.Client {
+	ConnectEnv()
+	uri := os.Getenv("MG_CONNECT")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+	return client
 }
