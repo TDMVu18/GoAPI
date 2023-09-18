@@ -32,10 +32,3 @@ func DisconnectDB() {
 		panic(err)
 	}
 }
-
-type ManageDB interface {
-	Insert(interface{}) error
-	GetAll() ([]Person, error)
-	DeleteData(primitive.ObjectID) error
-	UpdateData(Person) error
-}

@@ -8,24 +8,23 @@ import (
 	"net/http"
 )
 
-var Mgr model.ManageDB
-
 // api tim 1 item bang id
 func CreatePerson(ctx *gin.Context) {
 	defer model.DisconnectDB()
-	var dp model.Person
-	err := ctx.BindJSON(&dp)
+	var person model.Person
+	err := ctx.BindJSON(&person)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 	}
-	Mgr.Insert(dp)
-	ctx.JSON(http.StatusOK, appresponse.SimpleSuccessRes(dp))
-}
-
-func Create(data interface{}) error {
-	db := model.ConnectDB()
-	_, err := db.InsertOne(context.TODO(), data)
-	return err
+	coll := model.ConnectDB()
+	result, err := coll.InsertOne(context.TODO(), person)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, appresponse.SimpleSuccessRes(result))
 }
