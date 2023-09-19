@@ -22,7 +22,7 @@ type Person struct {
 	Deleted   bool               `json:"deleted" bson:"deleted"`
 }
 
-func ListPerson(search string) []bson.M {
+func ModelList(search string) []bson.M {
 	collection := initializer.ConnectDB()
 	defer initializer.DisconnectDB()
 	filter := bson.M{}
@@ -43,7 +43,7 @@ func ListPerson(search string) []bson.M {
 	return results
 }
 
-func FindPersonDetail(id string) *Person {
+func ModelGet(id string) *Person {
 	collection := initializer.ConnectDB()
 	defer initializer.DisconnectDB()
 	var person Person
@@ -59,7 +59,7 @@ func FindPersonDetail(id string) *Person {
 	return &person
 }
 
-func AddPerson(person Person) string {
+func ModelCreate(person Person) string {
 	collection := initializer.ConnectDB()
 	defer initializer.DisconnectDB()
 	_, err := collection.InsertOne(context.TODO(), person)
@@ -69,7 +69,7 @@ func AddPerson(person Person) string {
 	return "Created successfully"
 }
 
-func DeletePersonById(id string) string {
+func ModelDelete(id string) string {
 	collection := initializer.ConnectDB()
 	defer initializer.DisconnectDB()
 	personId, _ := primitive.ObjectIDFromHex(id)
@@ -81,7 +81,7 @@ func DeletePersonById(id string) string {
 	return "Deleted successfully"
 }
 
-func UpdatePersonById(person Person) string {
+func ModelUpdate(person Person) string {
 	collection := initializer.ConnectDB()
 	defer initializer.DisconnectDB()
 	update := bson.M{"$set": bson.M{"major": person.Major}}

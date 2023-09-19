@@ -22,7 +22,7 @@ func CreateRouter(app *gin.Engine) {
 		info := person.Group("/info")
 		{
 			info.POST("", controller.AddPerson)
-			info.GET("", controller.GetPersonList)
+			info.GET("", controller.ListPerson)
 			info.GET("/:id", controller.GetPersonById)
 			info.PATCH("/:id", controller.UpdatePersonById)
 			info.DELETE("/:id", controller.DeletePersonById)

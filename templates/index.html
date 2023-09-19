@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách người dùng</title>
+</head>
+<body>
+<h1>Danh sách người dùng</h1>
+<ul>
+    {{range .data}}
+    <li>{{.name}} - {{.major}}</li>
+    {{end}}
+</ul>
+</body>
+</html>

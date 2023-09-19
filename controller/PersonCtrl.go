@@ -11,23 +11,26 @@ import (
 // api tim 1 item bang id
 func GetPersonById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	result := model.FindPersonDetail(id)
+	result := model.ModelGet(id)
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": result,
 	})
 }
 
-func GetPersonList(ctx *gin.Context) {
+func ListPerson(ctx *gin.Context) {
 	search := ctx.DefaultQuery("search", "")
 
-	results := model.ListPerson(search)
+	results := model.ModelList(search)
 
 	if err := ctx.ShouldBind(&results); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 	}
-	ctx.JSON(http.StatusOK, gin.H{
+	//ctx.JSON(http.StatusOK, gin.H{
+	//	"data": results,
+	//})
+	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"data": results,
 	})
 }
@@ -45,7 +48,7 @@ func AddPerson(ctx *gin.Context) {
 	now := time.Now()
 	person.CreatedAt = &now
 	person.UpdatedAt = &now
-	message := model.AddPerson(person)
+	message := model.ModelCreate(person)
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": message,
 	})
@@ -53,7 +56,7 @@ func AddPerson(ctx *gin.Context) {
 
 func DeletePersonById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	message := model.DeletePersonById(id)
+	message := model.ModelDelete(id)
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": message,
 	})
@@ -71,7 +74,7 @@ func UpdatePersonById(ctx *gin.Context) {
 	person.ID, _ = primitive.ObjectIDFromHex(id)
 	now := time.Now()
 	person.UpdatedAt = &now
-	message := model.UpdatePersonById(person)
+	message := model.ModelUpdate(person)
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": message,
 	})

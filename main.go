@@ -8,5 +8,7 @@ import (
 func main() {
 	r := gin.Default()
 	routes.CreateRouter(r)
+	r.LoadHTMLGlob("templates/index.html")
 	r.Run(":3000")
+
 }
