@@ -39,3 +39,18 @@ func ConnectMongo() *mongo.Client {
 	}
 	return client
 }
+
+var mongoClient *mongo.Client
+var collection *mongo.Collection
+
+func ConnectDB() *mongo.Collection {
+	mongoClient = ConnectMongo()
+	collection = mongoClient.Database("personlist").Collection("person_info")
+	return collection
+}
+
+func DisconnectDB() {
+	if err := mongoClient.Disconnect(context.TODO()); err != nil {
+		panic(err)
+	}
+}

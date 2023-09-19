@@ -3,8 +3,10 @@ package model
 import (
 	"GoAPI/initializer"
 	"context"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 	"time"
 )
 
@@ -20,15 +22,73 @@ type Person struct {
 	Deleted   bool               `json:"deleted" bson:"deleted"`
 }
 
-func ConnectDB() *mongo.Collection {
-	mongoClient = initializer.ConnectMongo()
-	collection = mongoClient.Database("personlist").Collection("person_list")
-	return collection
-
+func ListPerson(search string) []bson.M {
+	collection := initializer.ConnectDB()
+	defer initializer.DisconnectDB()
+	filter := bson.M{}
+	if search != "" {
+		filter["$or"] = []bson.M{
+			bson.M{"name": bson.M{"$regex": search, "$options": "i"}},
+			bson.M{"major": bson.M{"$regex": search, "$options": "i"}},
+		}
+	}
+	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var results []bson.M
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
+	}
+	return results
 }
 
-func DisconnectDB() {
-	if err := mongoClient.Disconnect(context.TODO()); err != nil {
+func FindPersonDetail(id string) *Person {
+	collection := initializer.ConnectDB()
+	defer initializer.DisconnectDB()
+	var person Person
+	personId, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": personId}
+	err := collection.FindOne(context.TODO(), filter).Decode(&person)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil
+		}
 		panic(err)
 	}
+	return &person
+}
+
+func AddPerson(person Person) string {
+	collection := initializer.ConnectDB()
+	defer initializer.DisconnectDB()
+	_, err := collection.InsertOne(context.TODO(), person)
+	if err != nil {
+		panic(err)
+	}
+	return "Created successfully"
+}
+
+func DeletePersonById(id string) string {
+	collection := initializer.ConnectDB()
+	defer initializer.DisconnectDB()
+	personId, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": personId}
+	_, err := collection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		panic(err)
+	}
+	return "Deleted successfully"
+}
+
+func UpdatePersonById(person Person) string {
+	collection := initializer.ConnectDB()
+	defer initializer.DisconnectDB()
+	update := bson.M{"$set": bson.M{"major": person.Major}}
+	filter := bson.M{"_id": person.ID}
+	_, err := collection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		panic(err)
+	}
+	return "Updated successfully"
 }
