@@ -101,6 +101,10 @@ func ListItem(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"result": result,
 	})
+	//render template
+	//ctx.HTML(http.StatusOK, "index.html", gin.H{
+	//	"data": result,
+	//})
 }
 
 // api sort delete item (doi status sang deleted)

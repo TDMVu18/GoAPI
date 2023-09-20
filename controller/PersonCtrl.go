@@ -30,6 +30,7 @@ func ListPerson(ctx *gin.Context) {
 	//ctx.JSON(http.StatusOK, gin.H{
 	//	"data": results,
 	//})
+	//render template
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"data": results,
 	})
