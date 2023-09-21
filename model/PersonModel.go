@@ -15,8 +15,8 @@ var collection *mongo.Collection
 
 type Person struct {
 	ID        primitive.ObjectID `json:"_id" bson:"_id"`
-	Name      string             `json:"name" bson:"name"`
-	Major     string             `json:"major" bson:"major"`
+	Name      string             `json:"name" bson:"name" form:"name"`
+	Major     string             `json:"major" bson:"major" form:"major"`
 	CreatedAt *time.Time         `json:"created_at" bson:"created_at"`
 	UpdatedAt *time.Time         `json:"updated_at" bson:"updated_at"`
 	Deleted   bool               `json:"deleted" bson:"deleted"`

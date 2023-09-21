@@ -10,4 +10,5 @@ func main() {
 	routes.CreateRouter(r)
 	r.LoadHTMLGlob("templates/*")
 	r.Run(":3000")
+
 }

@@ -5,7 +5,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body>
-{{ template "header.html" . }}
+
 <main>
     <h1>Content of the Main Page</h1>
 </main>
@@ -14,27 +14,28 @@
         <div class ="col md-12">
             <div class="jumbotron p-3">
                 <h2>Manage <b>Service</b> <button type="button" class="btn btn-success" style="float:right"
-                                                   data-toggle="modal" data-target="#mymodal">Add new Person</button></h2>
+                                                   data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#mymodal">Add new Person</button></h2>
                 <table class="table table-hover">
 
                     <tr>
-                        <th>ID</th>
+                        <th>No</th>
                         <th>Name</th>
                         <th>Major</th>
                         <th>Deleted</th>
                         <th>Action</th>
                     </tr>
 
-
-                    {{range .data}}
+                    {{range $index, $element := .data}}
                     <tr>
-                        <td>{{._id}}</td>
-                        <td>{{.name}}</td>
-                        <td>{{.major}}</td>
-                        <td>{{.deleted}}</td>
-                        <td>
-                            <a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modaledit">Edit</a>
-                            <a href="" class="btn btn-danger btn-xs" onclick="return confirm ('Are u sure ?')">Delete </a>
+                        <td>{{$index}}</td>
+                        <td>{{$element.name}}</td>
+                        <td>{{$element.major}}</td>
+                        <td>{{$element.deleted}}</td>
+                        <td class="d-flex" style="gap: 4px">
+                            <a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#modaledit">Edit</a>
+                            <form action="/person/info/delete?id={{._id.Hex}}" method="POST">
+                                <button type="submit" class="btn btn-secondary">Delete</button>
+                            </form>
                         </td>
                     </tr>
 
@@ -42,35 +43,33 @@
 
                     <div id="modaledit" class="modal fade" role="dialog">
                         <div class="modal-dialog">
+                            <form action="" method="POST">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h4 class="modal-title">Update Data</h4>
 
                                 </div>
-                                <div class="modal-body">
 
-                                    <form action="" method="POST">
+                                <div class="modal-body">
 
                                         <div class="form-group">
                                             <label>Name:</label>
-                                            <input type="hidden" name="id" value="">
-                                            <input type="text" class="form-control" name="name" value="">
+                                            <input type="text" class="form-control" name="name" value="{{$element.name}}">
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Email:</label>
-                                            <input type="text" class="form-control" name="major" value="">
+                                            <label>Major:</label>
+                                            <input type="text" class="form-control" name="major" value="{{$element.major}}">
                                         </div>
 
-                                        <div class="form-group">
-                                            <button class="btn btn-primary" type="submit">Update</button>
-                                        </div>
 
-                                    </form>
 
                                 </div>
 
                                 <div class="modal-footer">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" type="submit">Update</button>
+                                    </div>
 
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
@@ -80,14 +79,39 @@
 
                             </div>
 
+
                         </div>
+                        </form>
                     </div>
                     <!-- End -->
                     {{end}}
                 </table>
             </div>
+
+            <!--Modal Delete-->
+
+            <div id="mymodaldelete" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Modal title</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Modal body text goes here.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- End -->
             <!-- Modal Add-->
-                <div id="mymodal" class="modal fade" role="dialog">
+            <div id="mymodal" class="modal fade" role="dialog">
+                <form action="/person/info" method="POST">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -95,8 +119,6 @@
 
                         </div>
                         <div class="modal-body">
-
-                            <form action="/add-person" method="POST">
 
                                 <div class="form-group">
                                     <label>Name:</label>
@@ -108,15 +130,17 @@
                                     <input type="text" class="form-control" name="major" required="1">
                                 </div>
 
-                                <div class="form-group">
-                                    <button class="btn btn-primary" type="submit">Confirm</button>
-                                </div>
 
-                            </form>
+
+
 
                         </div>
 
                         <div class="modal-footer">
+
+                            <div class="form-group">
+                                <button class="btn btn-primary" type="submit">Confirm</button>
+                            </div>
 
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
@@ -127,6 +151,7 @@
                     </div>
 
                 </div>
+                </form>
 
             </div>
             <!-- End -->

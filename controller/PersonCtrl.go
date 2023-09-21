@@ -2,6 +2,7 @@ package controller
 
 import (
 	"GoAPI/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -50,17 +51,16 @@ func AddPerson(ctx *gin.Context) {
 	person.CreatedAt = &now
 	person.UpdatedAt = &now
 	message := model.ModelCreate(person)
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": message,
-	})
+	fmt.Println(message)
+	ListPerson(ctx)
 }
 
 func DeletePersonById(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Query("id")
+
 	message := model.ModelDelete(id)
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": message,
-	})
+	fmt.Println(message)
+	ctx.Redirect(http.StatusFound, "/person/info")
 }
 
 func UpdatePersonById(ctx *gin.Context) {
