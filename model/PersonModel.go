@@ -84,7 +84,7 @@ func ModelDelete(id string) string {
 func ModelUpdate(person Person) string {
 	collection := initializer.ConnectDB()
 	defer initializer.DisconnectDB()
-	update := bson.M{"$set": bson.M{"major": person.Major}}
+	update := bson.M{"$set": bson.M{"name": person.Name, "major": person.Major}}
 	filter := bson.M{"_id": person.ID}
 	_, err := collection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {

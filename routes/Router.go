@@ -24,7 +24,7 @@ func CreateRouter(app *gin.Engine) {
 			info.POST("", controller.AddPerson)
 			info.GET("", controller.ListPerson)
 			info.GET("/:id", controller.GetPersonById)
-			info.POST("/:id/edit", controller.UpdatePersonById)
+			info.POST("/update", controller.UpdatePersonById)
 			info.POST("/delete", controller.DeletePersonById)
 		}
 	}

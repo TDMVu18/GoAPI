@@ -52,7 +52,7 @@ func AddPerson(ctx *gin.Context) {
 	person.UpdatedAt = &now
 	message := model.ModelCreate(person)
 	fmt.Println(message)
-	ListPerson(ctx)
+	ctx.Redirect(http.StatusFound, "/person/info")
 }
 
 func DeletePersonById(ctx *gin.Context) {
@@ -64,7 +64,7 @@ func DeletePersonById(ctx *gin.Context) {
 }
 
 func UpdatePersonById(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Query("id")
 	var person model.Person
 	if err := ctx.ShouldBind(&person); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -76,7 +76,6 @@ func UpdatePersonById(ctx *gin.Context) {
 	now := time.Now()
 	person.UpdatedAt = &now
 	message := model.ModelUpdate(person)
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": message,
-	})
+	fmt.Println(message)
+	ctx.Redirect(http.StatusFound, "/person/info")
 }
