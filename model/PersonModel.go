@@ -14,12 +14,12 @@ var mongoClient *mongo.Client
 var collection *mongo.Collection
 
 type Person struct {
-	ID        primitive.ObjectID `json:"_id" bson:"_id"`
-	Name      string             `json:"name" bson:"name" form:"name"`
-	Major     string             `json:"major" bson:"major" form:"major"`
-	CreatedAt *time.Time         `json:"created_at" bson:"created_at"`
-	UpdatedAt *time.Time         `json:"updated_at" bson:"updated_at"`
-	Deleted   bool               `json:"deleted" bson:"deleted"`
+	ID         primitive.ObjectID `json:"_id" bson:"_id"`
+	Name       string             `json:"name" bson:"name" form:"name"`
+	Major      string             `json:"major" bson:"major" form:"major"`
+	Appearance bool               `json:"appearance" bson:"appearance" form:"appearance"`
+	CreatedAt  *time.Time         `json:"created_at" bson:"created_at"`
+	UpdatedAt  *time.Time         `json:"updated_at" bson:"updated_at"`
 }
 
 func ModelList(search string) []bson.M {
@@ -27,9 +27,10 @@ func ModelList(search string) []bson.M {
 	defer initializer.DisconnectDB()
 	filter := bson.M{}
 	if search != "" {
+		//searchWithoutDiacritics := unidecode.Unidecode(search)
 		filter["$or"] = []bson.M{
-			bson.M{"name": bson.M{"$regex": search, "$options": "i"}},
-			bson.M{"major": bson.M{"$regex": search, "$options": "i"}},
+			bson.M{"name": bson.M{"$regex": search, "$options": "iu"}},
+			bson.M{"major": bson.M{"$regex": search, "$options": "iu"}},
 		}
 	}
 	cursor, err := collection.Find(context.TODO(), filter)
@@ -84,7 +85,7 @@ func ModelDelete(id string) string {
 func ModelUpdate(person Person) string {
 	collection := initializer.ConnectDB()
 	defer initializer.DisconnectDB()
-	update := bson.M{"$set": bson.M{"name": person.Name, "major": person.Major}}
+	update := bson.M{"$set": bson.M{"name": person.Name, "major": person.Major, "appearance": person.Appearance}}
 	filter := bson.M{"_id": person.ID}
 	_, err := collection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {

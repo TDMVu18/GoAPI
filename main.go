@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+
 	r := gin.Default()
 	routes.CreateRouter(r)
 	r.LoadHTMLGlob("templates/*")

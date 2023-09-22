@@ -13,15 +13,26 @@
     <div class="row">
         <div class ="col md-12">
             <div class="jumbotron p-3">
-                <h2>Manage <b>Service</b> <button type="button" class="btn btn-success" style="float:right"
+                <h2>Manage <b>Service</b>
+                    <button type="button" class="btn btn-success" style="float:right"
                                                    data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#mymodal">Add new Person</button></h2>
+                <div class="input-group mb-3">
+
+                    <div class="input-group-append">
+                        <form class="d-flex" action="/person/info" method="get">
+                            <input type="text" class="form-control" placeholder="Search" name="search">
+                            <button class="btn btn-outline-secondary" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
                 <table class="table table-hover">
 
                     <tr>
                         <th>No</th>
                         <th>Name</th>
                         <th>Major</th>
-                        <th>Deleted</th>
+                        <th class="text-center">Appearance</th>
+                        <th>Last Updated</th>
                         <th>Action</th>
                     </tr>
 
@@ -30,16 +41,52 @@
                         <td>{{$index}}</td>
                         <td>{{$element.name}}</td>
                         <td>{{$element.major}}</td>
-                        <td>{{$element.deleted}}</td>
+                        <td class="d-flex justify-content-center">
+                            <form action="/person/info/appearance?id={{._id.Hex}}" method="post">
+                                <input type="hidden" name="name" value="{{$element.name}}">
+                                <input type="hidden" name="major" value="{{$element.major}}">
+                                <button type="submit" class="btn btn-outline-{{if $element.appearance}}success{{else}}danger{{end}}"
+                                        data-id="{{$element._id.Hex}}"
+                                        data-appearance="{{$element.appearance}}">
+                                    {{if $element.appearance}}present{{else}}absent{{end}}
+                                </button>
+                            </form>
+                        </td>
+                        <td>{{$element.updated_at}}</td>
                         <td class="d-flex" style="gap: 4px">
                             <a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#modaledit{{$index}}">Edit</a>
-                            <form action="/person/info/delete?id={{._id.Hex}}" method="POST">
-                                <button type="submit" class="btn btn-secondary">Delete</button>
-                            </form>
+                            <a href="" class="btn btn-danger btn-xs" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#modaldelete{{$index}}">Delete</a>
                         </td>
                     </tr>
 
-                    <!-- Update -->
+                    <!-- Modal Delete -->
+
+                    <div id="modaldelete{{$index}}" class="modal fade" role="dialog">
+                        <form action="/person/info/delete?id={{._id.Hex}}" method="POST">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Modal title</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Xóa {{$element.name}} ?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" type="submit">Confirm</button>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+
+
+                    <!-- End -->
+
+                    <!-- Modal Update -->
 
                     <div id="modaledit{{$index}}" class="modal fade" role="dialog">
                         <div class="modal-dialog">
@@ -62,8 +109,7 @@
                                             <input type="text" class="form-control" name="major" value="{{$element.major}}">
                                         </div>
 
-
-
+                                     
                                 </div>
 
                                 <div class="modal-footer">
@@ -76,9 +122,7 @@
                                 </div>
 
 
-
                             </div>
-
 
                         </div>
                         </form>
@@ -87,10 +131,6 @@
                     {{end}}
                 </table>
             </div>
-
-            <!--Modal Delete-->
-
-            <!-- End -->
 
             <!-- Modal Add-->
             <div id="mymodal" class="modal fade" role="dialog">
@@ -133,6 +173,7 @@
 
             </div>
             <!-- End -->
+
 
         </div>
     </div>

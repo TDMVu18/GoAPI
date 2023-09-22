@@ -1,4 +1,4 @@
-package appresponse
+package ultility
 
 // struct khai bao thanh cong
 type SuccessRes struct {

@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"GoAPI/appresponse"
 	"GoAPI/initializer"
 	"GoAPI/model"
+	"GoAPI/ultility"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -34,7 +34,7 @@ func GetItemById(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, appresponse.SimpleSuccessRes(data))
+	ctx.JSON(http.StatusOK, ultility.SimpleSuccessRes(data))
 }
 
 // api post item
@@ -57,7 +57,7 @@ func CreateItem(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusOK, appresponse.SimpleSuccessRes(data))
+	ctx.JSON(http.StatusOK, ultility.SimpleSuccessRes(data))
 }
 
 // api update item
@@ -77,7 +77,7 @@ func UpdateItem(ctx *gin.Context) {
 			"error": err,
 		})
 	}
-	ctx.JSON(http.StatusOK, appresponse.SimpleSuccessRes(data))
+	ctx.JSON(http.StatusOK, ultility.SimpleSuccessRes(data))
 }
 
 // api list item, hoac search item theo key (mac dinh title)
@@ -125,5 +125,5 @@ func DeleteItem(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, appresponse.SimpleSuccessRes("Changed status into Deleted"))
+	ctx.JSON(http.StatusOK, ultility.SimpleSuccessRes("Changed status into Deleted"))
 }

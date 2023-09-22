@@ -20,17 +20,12 @@ func GetPersonById(ctx *gin.Context) {
 
 func ListPerson(ctx *gin.Context) {
 	search := ctx.DefaultQuery("search", "")
-
 	results := model.ModelList(search)
-
 	if err := ctx.ShouldBind(&results); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 	}
-	//ctx.JSON(http.StatusOK, gin.H{
-	//	"data": results,
-	//})
 	//render template
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"data": results,
@@ -46,7 +41,7 @@ func AddPerson(ctx *gin.Context) {
 		return
 	}
 	person.ID = primitive.NewObjectID()
-	person.Deleted = false
+	person.Appearance = false
 	now := time.Now()
 	person.CreatedAt = &now
 	person.UpdatedAt = &now
@@ -77,5 +72,26 @@ func UpdatePersonById(ctx *gin.Context) {
 	person.UpdatedAt = &now
 	message := model.ModelUpdate(person)
 	fmt.Println(message)
+	ctx.Redirect(http.StatusFound, "/person/info")
+}
+
+func ToggleAppearance(ctx *gin.Context) {
+	id := ctx.Query("id")
+	var person model.Person
+	if err := ctx.ShouldBind(&person); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	person.ID, _ = primitive.ObjectIDFromHex(id)
+
+	//update true sang false
+	person.Appearance = !person.Appearance
+	person.Name = ctx.PostForm("name")
+	person.Major = ctx.PostForm("major")
+	message := model.ModelUpdate(person)
+	fmt.Println(message)
+
 	ctx.Redirect(http.StatusFound, "/person/info")
 }
