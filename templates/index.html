@@ -22,9 +22,13 @@
                 <div class="input-group mb-3">
 
                     <div class="input-group-append">
-                        <form class="d-flex" action="/person/info" method="get">
+                        <form class="input-group d-flex" action="/person/info" method="get">
                             <input type="text" class="form-control" placeholder="Search" required="1" name="search">
-                            <button class="btn btn-outline-secondary" type="submit">Search</button>
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <svg width="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                </svg>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -42,7 +46,7 @@
 
                     {{range $index, $element := .data}}
                     <tr>
-                        <td>{{add1 $index}}</td>
+                        <td>{{add $index $.currentPage}}</td>
                         <td>{{$element.name}}</td>
                         <td>{{$element.major}}</td>
                         <td class="d-flex justify-content-center">
@@ -144,39 +148,48 @@
                     {{end}}
                 </table>
                 <!-- Pagination -->
-                <ul class="pagination">
-                    {{if .prevPage}}
-                    <li class="page-item">
-                        <a class="page-link" href="/person/info?page={{.prevPage}}&search={{.search}}">Previous</a>
-                    </li>
-                    {{else}}
-                    <li class="page-item disabled">
-                        <span class="page-link">First</span>
-                    </li>
-                    {{end}}
+                <div class="d-flex justify-content-between">
+                    <p>{{.startIndex}} - {{.endIndex}} in <b>{{.total}}</b></p>
+                    <ul class="pagination justify-content-end">
+                        {{if .prevPage}}
+                        <li class="page-item">
+                            <a id="prev-id" class="page-link">
+                                <svg width="12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                                </svg>
+                            </a>
+                        </li>
+                        {{else}}
+                        <li class="page-item disabled">
+                        </li>
+                        {{end}}
 
-                    {{range $i, $page := .pages}}
-                    {{if eq $page $.currentPage}}
-                    <li class="page-item">
-                        <a class="page-link current-page disabled">{{$page}}</a>
-                    </li>
-                    {{else}}
-                    <li class="page-item">
-                        <a href="/person/info?page={{$page}}" class="page-link">{{$page}}</a>
-                    </li>
-                    {{end}}
-                    {{end}}
+                        {{range $i, $page := .pages}}
+                        {{if eq $page $.currentPage}}
+                        <li class="page-item disabled">
+                            <a class="page-link current-page">{{$page}}</a>
+                        </li>
+                        {{else}}
+                        <li class="page-item">
+                            <a id="page-nav" class="page-link">{{$page}}</a>
+                        </li>
+                        {{end}}
+                        {{end}}
 
-                    {{if .isLastPage}}
-                    <li class="page-item disabled">
-                        <span class="page-link">Final</span>
-                    </li>
-                    {{else}}
-                    <li class="page-item">
-                        <a class="page-link" href="/person/info?page={{.nextPage}}&search={{.search}}">Next</a>
-                    </li>
-                    {{end}}
-                </ul>
+                        {{if .isLastPage}}
+                        <li class="page-item disabled">
+                        </li>
+                        {{else}}
+                        <li class="page-item">
+                            <a id="next-id" class="page-link">
+                                <svg width="12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                            </a>
+                        </li>
+                        {{end}}
+                    </ul>
+                </div>
 
             </div>
 
@@ -226,6 +239,38 @@
         </div>
     </div>
 </div>
+<script>
+    // Lấy giá trị của tham số "search" từ URL hiện tại
+    var searchParam = new URLSearchParams(window.location.search).get('search');
+    if (searchParam === null) {
+        searchParam =""
+    }
+    // Lấy thẻ <a> có sẵn bằng cách sử dụng ID hoặc các phương pháp khác
+    var navpre = document.getElementById('prev-id');
+
+    // Truyền giá trị của tham số "search" vào thuộc tính href của thẻ <a>
+    navpre.href = "/person/info?page={{.prevPage}}&search=" + searchParam;
+
+</script>
+<script>
+    var getParam = new URLSearchParams(window.location.search).get('search');
+    if (getParam === null) {
+        getParam =""
+    }
+    var navnxt = document.getElementById('next-id');
+
+    navnxt.href = "/person/info?page={{.nextPage}}&search=" + getParam;
+</script>
+
+<script>
+    var pageSearch = new URLSearchParams(window.location.search).get('search');
+    if (pageSearch === null) {
+        pageSearch =""
+    }
+    pagetext = document.getElementById('page-nav').text
+    var navpage = document.getElementById('page-nav');
+    navpage.href = "/person/info?page=" + pagetext + "&search=" + pageSearch;
+</script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>

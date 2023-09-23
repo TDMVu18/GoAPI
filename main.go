@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func add1(num int) int {
-	return num + 1
+func add(num, page int) int {
+	return num + 6*(page-1) + 1
 }
 
 func FormatTimestamp(timestamp primitive.DateTime) string {
@@ -22,11 +22,10 @@ func FormatTimestamp(timestamp primitive.DateTime) string {
 
 	return formattedTime
 }
-
 func main() {
 	r := gin.Default()
 	r.SetFuncMap(template.FuncMap{
-		"add1":            add1,
+		"add":             add,
 		"FormatTimestamp": FormatTimestamp,
 	})
 	routes.CreateRouter(r)

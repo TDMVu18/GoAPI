@@ -33,14 +33,17 @@ func ListPerson(ctx *gin.Context) {
 			"error": err.Error(),
 		})
 	}
+	total := len(results)
 	// Số dòng trên mỗi trang
 	rowsPerPage := 6
 	// Tính vị trí bắt đầu và kết thúc của dữ liệu trên trang hiện tại
 	startIndex := (page - 1) * rowsPerPage
 	endIndex := startIndex + rowsPerPage
-	if endIndex > len(results) {
-		endIndex = len(results)
+	if endIndex > total {
+		endIndex = total
 	}
+	//thêm total
+	// ???
 
 	// Lấy dữ liệu trên trang hiện tại
 	currentPageData := results[startIndex:endIndex]
@@ -62,13 +65,15 @@ func ListPerson(ctx *gin.Context) {
 	} else {
 		isLastPage = true
 	}
-
 	// Render template
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"data":        currentPageData,
 		"prevPage":    page - 1,
 		"currentPage": page,
+		"total":       total,
 		"nextPage":    nextPage,
+		"startIndex":  startIndex + 1,
+		"endIndex":    endIndex,
 		"isLastPage":  isLastPage,
 		"pages":       pages,
 	})
