@@ -29,8 +29,8 @@ func ModelList(search string) []bson.M {
 	if search != "" {
 		//searchWithoutDiacritics := unidecode.Unidecode(search)
 		filter["$or"] = []bson.M{
-			bson.M{"name": bson.M{"$regex": search, "$options": "iu"}},
-			bson.M{"major": bson.M{"$regex": search, "$options": "iu"}},
+			bson.M{"name": bson.M{"$regex": search, "$options": "i"}},
+			bson.M{"major": bson.M{"$regex": search, "$options": "i"}},
 		}
 	}
 	cursor, err := collection.Find(context.TODO(), filter)

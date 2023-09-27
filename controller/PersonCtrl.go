@@ -33,6 +33,7 @@ func ListPerson(ctx *gin.Context) {
 			"error": err.Error(),
 		})
 	}
+
 	total := len(results)
 	// Số dòng trên mỗi trang
 	rowsPerPage := 6
@@ -76,6 +77,7 @@ func ListPerson(ctx *gin.Context) {
 		"endIndex":    endIndex,
 		"isLastPage":  isLastPage,
 		"pages":       pages,
+		"search":      search,
 	})
 }
 
@@ -99,10 +101,12 @@ func AddPerson(ctx *gin.Context) {
 
 func DeletePersonById(ctx *gin.Context) {
 	id := ctx.Query("id")
-
+	page := ctx.PostForm("page")
+	search := ctx.PostForm("search")
 	message := model.ModelDelete(id)
 	fmt.Println(message)
-	ctx.Redirect(http.StatusFound, "/person/info")
+	redirectURL := fmt.Sprintf("/person/info?page=%s&search=%s", page, search)
+	ctx.Redirect(http.StatusFound, redirectURL)
 }
 
 func UpdatePersonById(ctx *gin.Context) {
@@ -114,12 +118,16 @@ func UpdatePersonById(ctx *gin.Context) {
 		})
 		return
 	}
+	page := ctx.PostForm("page")
+	search := ctx.PostForm("search")
 	person.ID, _ = primitive.ObjectIDFromHex(id)
 	now := time.Now()
 	person.UpdatedAt = &now
 	message := model.ModelUpdate(person)
 	fmt.Println(message)
-	ctx.Redirect(http.StatusFound, "/person/info")
+	fmt.Printf("page is %s and search is %s", page, search)
+	redirectURL := fmt.Sprintf("/person/info?page=%s&search=%s", page, search)
+	ctx.Redirect(http.StatusFound, redirectURL)
 }
 
 func ToggleAppearance(ctx *gin.Context) {
@@ -131,6 +139,8 @@ func ToggleAppearance(ctx *gin.Context) {
 		})
 		return
 	}
+	page := ctx.PostForm("page")
+	search := ctx.PostForm("search")
 	person.ID, _ = primitive.ObjectIDFromHex(id)
 	//update true sang false
 	person.Appearance = !person.Appearance
@@ -138,6 +148,7 @@ func ToggleAppearance(ctx *gin.Context) {
 	person.Major = ctx.PostForm("major")
 	message := model.ModelUpdate(person)
 	fmt.Println(message)
-
-	ctx.Redirect(http.StatusFound, "/person/info")
+	fmt.Printf("page is %s and search is %s", page, search)
+	redirectURL := fmt.Sprintf("/person/info?page=%s&search=%s", page, search)
+	ctx.Redirect(http.StatusFound, redirectURL)
 }
