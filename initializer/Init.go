@@ -5,8 +5,6 @@ import (
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"log"
 	"os"
 )
@@ -18,18 +16,6 @@ func ConnectEnv() {
 		log.Fatalf("can't connect to environment file; error: %s", err)
 	}
 }
-
-func ConnectMYSQL() *gorm.DB {
-	ConnectEnv()
-	dsn := os.Getenv("DB_CONNECT")
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	//loi ket noi database
-	if err != nil {
-		log.Fatalf("can't connect to database, error: %s", err)
-	}
-	return db
-}
-
 func ConnectMongo() *mongo.Client {
 	ConnectEnv()
 	uri := os.Getenv("MG_CONNECT")
@@ -43,9 +29,15 @@ func ConnectMongo() *mongo.Client {
 var mongoClient *mongo.Client
 var collection *mongo.Collection
 
-func ConnectDB() *mongo.Collection {
+func ConnectDB(collname string) *mongo.Collection {
 	mongoClient = ConnectMongo()
-	collection = mongoClient.Database("personlist").Collection("person_info")
+	collection = mongoClient.Database("personlist").Collection(collname)
+	return collection
+}
+
+func UserDB() *mongo.Collection {
+	mongoClient = ConnectMongo()
+	collection = mongoClient.Database("personlist").Collection("user_info")
 	return collection
 }
 

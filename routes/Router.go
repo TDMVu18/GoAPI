@@ -3,30 +3,32 @@ package routes
 import (
 	"GoAPI/controller"
 	"github.com/gin-gonic/gin"
+	"github.com/olahol/go-imageupload"
 )
 
+var currentImage *imageupload.Image
+
 func CreateRouter(app *gin.Engine) {
-	todo := app.Group("/todo")
+
+	auth := app.Group("/auth")
 	{
-		item := todo.Group("/item")
-		{
-			item.POST("", controller.CreateItem)       //Create Item
-			item.GET("", controller.ListItem)          //List Item (Search Item)
-			item.GET("/:id", controller.GetItemById)   //Get Item By Id
-			item.PATCH("/:id", controller.UpdateItem)  //Update Item
-			item.DELETE("/:id", controller.DeleteItem) //Delete Item
-		}
+		auth.POST("/register", controller.Register)
+		auth.POST("/login", controller.Login)
+		auth.GET("", controller.Authen)
+		auth.GET("/signup", controller.SignUp)
 	}
 	person := app.Group("/person")
 	{
+		//person.Use(middleware.AuthMiddleware())
 		info := person.Group("/info")
 		{
 			info.POST("", controller.AddPerson)
+			info.GET("/profile", controller.ShowProfile)
 			info.GET("", controller.ListPerson)
-			info.GET("/:id", controller.GetPersonById)
 			info.POST("/update", controller.UpdatePersonById)
 			info.POST("/delete", controller.DeletePersonById)
 			info.POST("/appearance", controller.ToggleAppearance)
+			info.POST("/upload", controller.Upload)
 		}
 	}
 }

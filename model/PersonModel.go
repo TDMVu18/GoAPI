@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"time"
 )
@@ -18,12 +19,26 @@ type Person struct {
 	Name       string             `json:"name" bson:"name" form:"name"`
 	Major      string             `json:"major" bson:"major" form:"major"`
 	Appearance bool               `json:"appearance" bson:"appearance" form:"appearance"`
+	ImageURL   string             `json:"imageURL" bson:"image_url"`
 	CreatedAt  *time.Time         `json:"created_at" bson:"created_at"`
 	UpdatedAt  *time.Time         `json:"updated_at" bson:"updated_at"`
 }
 
+type Office struct {
+	ID        primitive.ObjectID `json:"_id" bson:"_id"`
+	Name      string             `json:"name" bson:"name"`
+	Address   string             `json:"address" bson:"address"`
+	CreatedAt *time.Time         `json:"created_at" bson:"created_at"`
+	UpdatedAt *time.Time         `json:"updated_at" bson:"updated_at"`
+}
+
+type Salary struct {
+	ID    primitive.ObjectID `json:"_id" bson:"_id"`
+	Level string             `json:"level" bson:"level"`
+}
+
 func ModelList(search string) []bson.M {
-	collection := initializer.ConnectDB()
+	collection := initializer.ConnectDB("person_info")
 	defer initializer.DisconnectDB()
 	filter := bson.M{}
 	if search != "" {
@@ -33,7 +48,9 @@ func ModelList(search string) []bson.M {
 			bson.M{"major": bson.M{"$regex": search, "$options": "i"}},
 		}
 	}
-	cursor, err := collection.Find(context.TODO(), filter)
+	sort := bson.M{"created_at": -1}
+	options := options.Find().SetSort(sort)
+	cursor, err := collection.Find(context.TODO(), filter, options)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,7 +62,7 @@ func ModelList(search string) []bson.M {
 }
 
 func ModelGet(id string) *Person {
-	collection := initializer.ConnectDB()
+	collection := initializer.ConnectDB("person_info")
 	defer initializer.DisconnectDB()
 	var person Person
 	personId, _ := primitive.ObjectIDFromHex(id)
@@ -61,7 +78,7 @@ func ModelGet(id string) *Person {
 }
 
 func ModelCreate(person Person) string {
-	collection := initializer.ConnectDB()
+	collection := initializer.ConnectDB("person_info")
 	defer initializer.DisconnectDB()
 	_, err := collection.InsertOne(context.TODO(), person)
 	if err != nil {
@@ -71,7 +88,7 @@ func ModelCreate(person Person) string {
 }
 
 func ModelDelete(id string) string {
-	collection := initializer.ConnectDB()
+	collection := initializer.ConnectDB("person_info")
 	defer initializer.DisconnectDB()
 	personId, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.M{"_id": personId}
@@ -83,7 +100,7 @@ func ModelDelete(id string) string {
 }
 
 func ModelUpdate(person Person) string {
-	collection := initializer.ConnectDB()
+	collection := initializer.ConnectDB("person_info")
 	defer initializer.DisconnectDB()
 	update := bson.M{"$set": bson.M{"name": person.Name, "major": person.Major, "appearance": person.Appearance}}
 	filter := bson.M{"_id": person.ID}

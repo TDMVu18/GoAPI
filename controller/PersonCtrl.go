@@ -7,6 +7,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"math"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -150,5 +152,39 @@ func ToggleAppearance(ctx *gin.Context) {
 	fmt.Println(message)
 	fmt.Printf("page is %s and search is %s", page, search)
 	redirectURL := fmt.Sprintf("/person/info?page=%s&search=%s", page, search)
+	ctx.Redirect(http.StatusFound, redirectURL)
+}
+
+func ShowProfile(ctx *gin.Context) {
+	// Lấy id thông qua url để truyền vào hàm model, trả dữ liệu ra
+	id := ctx.Query("id")
+	var person model.Person
+
+	person = *model.ModelGet(id)
+
+	ctx.HTML(http.StatusOK, "profile.html", person)
+}
+
+func Upload(ctx *gin.Context) {
+	id := ctx.PostForm("id")
+	formFile, _ := ctx.FormFile("profileImage")
+	uploadPath := "./uploads/"
+	if err := os.MkdirAll(uploadPath, os.ModePerm); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if string(filepath.Ext(formFile.Filename)) != ".jpg" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Định dạng không được hỗ trợ",
+		})
+		return
+	}
+	fileName := id + filepath.Ext(formFile.Filename)
+	filePath := filepath.Join(uploadPath, fileName)
+	if err := ctx.SaveUploadedFile(formFile, filePath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	redirectURL := fmt.Sprintf("/person/info/profile?id=%s", id)
 	ctx.Redirect(http.StatusFound, redirectURL)
 }

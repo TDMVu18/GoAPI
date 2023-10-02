@@ -12,7 +12,14 @@ func add(num, page int) int {
 	return num + 6*(page-1) + 1
 }
 
-func FormatTimestamp(timestamp primitive.DateTime) string {
+func shortenData(input string, maxLength int) string {
+	if len(input) <= maxLength {
+		return input
+	}
+	return input[:maxLength] + "..."
+}
+
+func formatTimestamp(timestamp primitive.DateTime) string {
 	// Chuyển đổi primitive.DateTime thành time.Time
 	t := time.Unix(int64(timestamp)/1000, 0) // Chia cho 1000 để chuyển đổi thành giây
 
@@ -26,10 +33,11 @@ func main() {
 	r := gin.Default()
 	r.SetFuncMap(template.FuncMap{
 		"add":             add,
-		"FormatTimestamp": FormatTimestamp,
+		"formatTimestamp": formatTimestamp,
+		"shortenData":     shortenData,
 	})
 	routes.CreateRouter(r)
+	r.Static("/uploads", "./uploads")
 	r.LoadHTMLGlob("templates/*")
 	r.Run(":3000")
-
 }
