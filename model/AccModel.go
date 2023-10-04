@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type AuthenInput struct {
+type AuthInput struct {
 	UserName string `json:"username" bson:"username" form:"username"`
 	Password string `json:"password" bson:"password" form:"password"`
 }
@@ -32,7 +32,7 @@ func (account *Account) Save() (*Account, error) {
 	return account, nil
 }
 
-// xóa khoảng trắng user name, hash mật khẩu
+// hash mật khẩu
 func (account *Account) PreProcess() error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	if err != nil {

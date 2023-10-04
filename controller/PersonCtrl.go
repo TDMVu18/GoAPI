@@ -40,26 +40,18 @@ func ListPerson(ctx *gin.Context) {
 			"error":   err.Error(),
 		})
 	}
-
+	// phân trang
 	total := len(results)
-	// Số dòng trên mỗi trang
 	rowsPerPage := 6
-	// Tính vị trí bắt đầu và kết thúc của dữ liệu trên trang hiện tại
 	startIndex := (page - 1) * rowsPerPage
 	endIndex := startIndex + rowsPerPage
 	if endIndex > total {
 		endIndex = total
 	}
-	//thêm total
-	// ???
-
-	// Lấy dữ liệu trên trang hiện tại
 	currentPageData := results[startIndex:endIndex]
 
-	// Tính tổng số trang
+	// tạo danh sách trang
 	totalPages := int(math.Ceil(float64(len(results)) / float64(rowsPerPage)))
-
-	// Tạo danh sách các trang
 	var pages []int
 	for i := 1; i <= totalPages; i++ {
 		pages = append(pages, i)
@@ -266,22 +258,14 @@ func ListSalary(ctx *gin.Context) {
 	}
 	results := model.ModelSalaryList() // Sử dụng hàm ModelListSalary để lấy dữ liệu mức lương
 	total := len(results)
-	// Số mức lương trên mỗi trang
 	rowsPerPage := 6
-	// Tính vị trí bắt đầu và kết thúc của dữ liệu trên trang hiện tại
 	startIndex := (page - 1) * rowsPerPage
 	endIndex := startIndex + rowsPerPage
 	if endIndex > total {
 		endIndex = total
 	}
-
-	// Lấy dữ liệu trên trang hiện tại
 	currentPageData := results[startIndex:endIndex]
-
-	// Tính tổng số trang
 	totalPages := int(math.Ceil(float64(len(results)) / float64(rowsPerPage)))
-
-	// Tạo danh sách các trang
 	var pages []int
 	for i := 1; i <= totalPages; i++ {
 		pages = append(pages, i)
@@ -296,7 +280,7 @@ func ListSalary(ctx *gin.Context) {
 		isLastPage = true
 	}
 
-	// Trả về dữ liệu dưới dạng JSON
+	// Render Template
 	ctx.HTML(http.StatusOK, "salary.html", gin.H{
 		"data":        currentPageData,
 		"prevPage":    page - 1,
@@ -411,20 +395,13 @@ func ListOffice(ctx *gin.Context) {
 	total := len(results)
 
 	rowsPerPage := 6
-	// Tính vị trí bắt đầu và kết thúc của dữ liệu trên trang hiện tại
 	startIndex := (page - 1) * rowsPerPage
 	endIndex := startIndex + rowsPerPage
 	if endIndex > total {
 		endIndex = total
 	}
-
-	// Lấy dữ liệu trên trang hiện tại
 	currentPageData := results[startIndex:endIndex]
-
-	// Tính tổng số trang
 	totalPages := int(math.Ceil(float64(len(results)) / float64(rowsPerPage)))
-
-	// Tạo danh sách các trang
 	var pages []int
 	for i := 1; i <= totalPages; i++ {
 		pages = append(pages, i)
@@ -439,7 +416,7 @@ func ListOffice(ctx *gin.Context) {
 		isLastPage = true
 	}
 
-	// Trả về dữ liệu dưới dạng JSON
+	// Render Template
 	ctx.HTML(http.StatusOK, "office.html", gin.H{
 		"data":        currentPageData,
 		"prevPage":    page - 1,

@@ -69,8 +69,8 @@
                     {{range $index, $element := .data}}
                     <tr>
                         <td>{{add $index $.currentPage}}</td>
-                        <td><a href="/person/info/profile?id={{._id.Hex}}">{{shortenData $element.name 30}}</a></td>
-                        <td>{{shortenData $element.major 30}}</td>
+                        <td><a href="/person/info/profile?id={{._id.Hex}}">{{shortenData $element.name 15}}</a></td>
+                        <td>{{shortenData $element.major 15}}</td>
                         <td><b>{{$element.level}}</b></td>
                         <td><b>{{$element.office}}</b></td>
                         <td class="d-flex justify-content-center">

@@ -37,6 +37,7 @@ func main() {
 		"shortenData":     shortenData,
 	})
 	routes.CreateRouter(r)
+	r.Static("/js", "./js")
 	r.Static("/uploads", "./uploads")
 	r.LoadHTMLGlob("templates/*")
 	r.Run(":3000")

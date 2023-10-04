@@ -4,10 +4,7 @@ import (
 	"GoAPI/controller"
 	"GoAPI/middleware"
 	"github.com/gin-gonic/gin"
-	"github.com/olahol/go-imageupload"
 )
-
-var currentImage *imageupload.Image
 
 func CreateRouter(app *gin.Engine) {
 
@@ -15,12 +12,12 @@ func CreateRouter(app *gin.Engine) {
 	{
 		auth.POST("/register", controller.Register)
 		auth.POST("/login", controller.Login)
-		auth.GET("", controller.Authen)
+		auth.GET("", controller.Auth)
 		auth.GET("/signup", controller.SignUp)
 	}
 	person := app.Group("/person")
 	{
-		person.Use(middleware.JWTAuthMiddleware())
+		person.Use(middleware.AuthMiddleware())
 		info := person.Group("/info")
 		{
 			info.POST("", controller.AddPerson)

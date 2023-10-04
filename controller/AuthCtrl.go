@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func Authen(ctx *gin.Context) {
+func Auth(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "login.html", gin.H{
 		"render": "render",
 	})
@@ -22,17 +22,17 @@ func SignUp(ctx *gin.Context) {
 }
 
 func Register(ctx *gin.Context) {
-	var input model.AuthenInput
+	var input model.AuthInput
 
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code":    http.StatusBadRequest,
-			"message": "Xử lý request từ form đăng nhập không thành công",
+			"message": "Xử lý request từ form đăng ký không thành công",
 			"error":   err.Error(),
 		})
 		return
 	}
-	// Kiểm tra xem tên người dùng đã tồn tại hay chưa
+	// Kiểm tra username đã tồn tại hay chưa
 	existingUser, err := model.FindAccountByUserName(input.UserName)
 	if err == nil && existingUser != (model.Account{}) {
 		ctx.JSON(http.StatusConflict, gin.H{
@@ -61,7 +61,7 @@ func Register(ctx *gin.Context) {
 }
 
 func Login(ctx *gin.Context) {
-	var input model.AuthenInput
+	var input model.AuthInput
 
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -82,16 +82,16 @@ func Login(ctx *gin.Context) {
 	}
 	err = entry.ValidatePassword(input.Password)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    http.StatusNotFound,
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
 			"message": "Sai mật khẩu, vui lòng kiểm tra lại",
 			"error":   err.Error(),
 		})
 		return
 	}
 
+	// Tạo JWT và trả về cho client
 	token, err := helper.CreateJwt(entry)
-	fmt.Println(token)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code":    http.StatusBadRequest,
@@ -100,5 +100,8 @@ func Login(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.Redirect(http.StatusFound, "/person/info")
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 }
