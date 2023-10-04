@@ -6,42 +6,14 @@ import (
 	"net/http"
 )
 
-//func AuthMiddleware() gin.HandlerFunc {
-//	return func(ctx *gin.Context) {
-//
-//		tokenString, exists := ctx.Get("Authorization")
-//		if !exists || tokenString == nil {
-//			ctx.Redirect(http.StatusFound, "/auth")
-//			ctx.Abort()
-//			return
-//		}
-//
-//		err := helper.ValidateJWT(ctx)
-//		if err != nil {
-//			ctx.Redirect(http.StatusFound, "/auth")
-//			ctx.Abort()
-//			return
-//		}
-//		ctx.Next()
-//	}
-//}
-
-func AuthMiddleware() gin.HandlerFunc {
+func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		tokenString := helper.GetTokenFromRequest(ctx)
-		if tokenString == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Missing or invalid token"})
-			ctx.Abort()
-			return
-		}
-
-		err := helper.ValidateJWT(tokenString)
+		err := helper.ValidateJWT(ctx)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			ctx.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "Authentication required"})
 			ctx.Abort()
 			return
 		}
-
 		ctx.Next()
 	}
 }

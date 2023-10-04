@@ -25,7 +25,7 @@ func formatTimestamp(timestamp primitive.DateTime) string {
 
 	// Định dạng thời gian sang múi giờ của bạn
 	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
-	formattedTime := t.In(loc).Format("2006-01-02 15:04:05.999")
+	formattedTime := t.In(loc).Format("2006-01-02 15:04:05")
 
 	return formattedTime
 }

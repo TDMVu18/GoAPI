@@ -26,16 +26,18 @@ func Register(ctx *gin.Context) {
 
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-			"err":   "Authed",
+			"code":    http.StatusBadRequest,
+			"message": "Xử lý request từ form đăng nhập không thành công",
+			"error":   err.Error(),
 		})
 		return
 	}
 	// Kiểm tra xem tên người dùng đã tồn tại hay chưa
 	existingUser, err := model.FindAccountByUserName(input.UserName)
 	if err == nil && existingUser != (model.Account{}) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Tên người dùng đã tồn tại. Vui lòng chọn tên người dùng khác.",
+		ctx.JSON(http.StatusConflict, gin.H{
+			"code":    http.StatusConflict,
+			"message": "Tên người dùng đã tồn tại. Vui lòng chọn tên người dùng khác.",
 		})
 		return
 	}
@@ -48,8 +50,9 @@ func Register(ctx *gin.Context) {
 	savedUser, err := account.Save()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-			"err":   "savedUser",
+			"code":    http.StatusBadRequest,
+			"message": "Lưu thông tin đăng ký không thành công",
+			"error":   err.Error(),
 		})
 		return
 	}
@@ -62,30 +65,40 @@ func Login(ctx *gin.Context) {
 
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"code":    http.StatusBadRequest,
+			"message": "Xử lý request từ form đăng nhập không thành công",
+			"error":   err.Error(),
 		})
 		return
 	}
 	entry, err := model.FindAccountByUserName(input.UserName)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "User not found",
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"message": "Không tìm thấy người dùng",
+			"error":   err.Error(),
 		})
 		return
 	}
 	err = entry.ValidatePassword(input.Password)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "Password not correct",
+			"code":    http.StatusNotFound,
+			"message": "Sai mật khẩu, vui lòng kiểm tra lại",
+			"error":   err.Error(),
 		})
 		return
 	}
+
 	token, err := helper.CreateJwt(entry)
-	ctx.Header("Authorization", "Bearer "+token)
+	fmt.Println(token)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "Can't create JWT",
+			"code":    http.StatusBadRequest,
+			"message": "Không tạo được token",
+			"error":   err.Error(),
 		})
+		return
 	}
 	ctx.Redirect(http.StatusFound, "/person/info")
 }

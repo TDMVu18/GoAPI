@@ -20,15 +20,17 @@
                 <div class="card shadow-sm">
                     <form id="myForm" action="/person/info/upload" method="POST"  enctype="multipart/form-data">
                     <div class="card-header bg-transparent text-center">
-                        <img width="100%" height="auto" src="/uploads/{{.ID.Hex}}.jpg" alt="Hình ảnh mô tả">
+                        <img width="100%" height="auto" src="/uploads/{{.id}}.jpg" alt="Không có hình ảnh">
                         <input id="myInput" type="file" name="profileImage">
-                        <input type="hidden" name="id" value="{{.ID.Hex}}">
-                        <h3>Name: {{.Name}}</h3>
+                        <input type="hidden" name="id" value="{{.person.ID.Hex}}">
+                        <h3>Name: {{.person.Name}}</h3>
                     </div>
                     <div class="card-body">
-                        <p class="mb-0"><strong class="pr-1">Major:</strong> {{.Major}}</p>
-                        <p class="mb-0"><strong class="pr-1">Appearance:</strong> {{if .Appearance}}Có{{else}}Vắng{{end}}</p>
-                        <p class="mb-0"><strong class="pr-1">Last Check-In:</strong> {{.UpdatedAt}}</p>
+                        <p class="mb-0" style="font-size: 20px"><strong class="pr-1">Major:</strong><u> {{.person.Major}}</u></p>
+                        <p class="mb-0" style="font-size: 20px"><strong class="pr-1">Level:</strong><i> {{.person.Level}}</i></p>
+                        <p class="mb-0" style="font-size: 20px"><strong class="pr-1">Office:</strong><i> {{.person.Office}}</i></p>
+                        <p class="mb-0" style="font-size: 20px"><strong class="pr-1">Appearance:</strong><b style="color: red"> {{if .person.Appearance}}Present{{else}}Absent{{end}}</b></p>
+                        <p class="mb-0" style="font-size: 20px"><strong class="pr-1">Last Check-In:</strong> {{.person.UpdatedAt}}</p>
                     </div>
                     </form>
                 </div>
@@ -41,42 +43,31 @@
                     <div class="card-body pt-0">
                         <table class="table table-bordered">
                             <tr>
-                                <th width="30%">Roll</th>
-                                <td width="2%">:</td>
-                                <td>125</td>
+                                <th style="font-size: 50px">Address</th>
+                                <td style="font-size: 50px" width="2%">:</td>
+                                <td style="font-size: 50px">{{.officeAddress}}</td>
                             </tr>
-                            <tr>
-                                <th width="30%">Academic Year	</th>
-                                <td width="2%">:</td>
-                                <td>2020</td>
-                            </tr>
-                            <tr>
-                                <th width="30%">Gender</th>
-                                <td width="2%">:</td>
-                                <td>Male</td>
-                            </tr>
-                            <tr>
-                                <th width="30%">Religion</th>
-                                <td width="2%">:</td>
-                                <td>Group</td>
-                            </tr>
-                            <tr>
-                                <th width="30%">blood</th>
-                                <td width="2%">:</td>
-                                <td>B+</td>
-                            </tr>
+
                         </table>
                     </div>
                 </div>
                 <div style="height: 26px"></div>
                 <div class="card shadow-sm">
                     <div class="card-header bg-transparent border-0">
-                        <h3 class="mb-0"><i class="far fa-clone pr-1"></i>Other Information</h3>
+                        <h3 class="mb-0"><i class="far fa-clone pr-1"></i>Income</h3>
                     </div>
                     <div class="card-body pt-0">
-                        <p></p>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th style="font-size: 50px">Value</th>
+                                <td style="font-size: 50px" width="2%">:</td>
+                                <td style="font-size: 50px">{{.salaryValue}}</td>
+                            </tr>
+
+                        </table>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

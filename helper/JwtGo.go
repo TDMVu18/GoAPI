@@ -21,11 +21,24 @@ func CreateJwt(account model.Account) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  account.ID,
 		"iat": time.Now().Unix(),                                            //thời gian code được tạo
-		"eat": time.Now().Add(time.Second * time.Duration(tokenTLL)).Unix(), //thời gian code expired
+		"exp": time.Now().Add(time.Second * time.Duration(tokenTLL)).Unix(), //thời gian code expired
 	})
 	return token.SignedString(privateKey)
 }
-func ValidateJWT(tokenString string) error {
+func ValidateJWT(context *gin.Context) error {
+	token, err := getToken(context)
+	if err != nil {
+		return err
+	}
+	_, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		return nil
+	}
+	return errors.New("invalid token provided")
+}
+
+func getToken(ctx *gin.Context) (*jwt.Token, error) {
+	tokenString := GetTokenFromRequest(ctx)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -33,31 +46,11 @@ func ValidateJWT(tokenString string) error {
 
 		return privateKey, nil
 	})
-	if err != nil {
-		return err
-	}
-
-	if token.Valid {
-		return nil
-	}
-
-	return errors.New("invalid token provided")
+	return token, err
 }
 
-//func getToken(ctx *gin.Context) (*jwt.Token, error) {
-//	tokenString := getTokenFromRequest(ctx)
-//	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-//		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-//			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-//		}
-//
-//		return privateKey, nil
-//	})
-//	return token, err
-//}
-
 func GetTokenFromRequest(ctx *gin.Context) string {
-	authHeader := ctx.GetHeader("Authorization")
+	authHeader := ctx.Request.Header.Get("Authorization")
 
 	if authHeader != "" {
 		splitToken := strings.Split(authHeader, "Bearer ")
@@ -65,6 +58,5 @@ func GetTokenFromRequest(ctx *gin.Context) string {
 			return splitToken[1]
 		}
 	}
-	fmt.Println("Header:", authHeader)
 	return ""
 }

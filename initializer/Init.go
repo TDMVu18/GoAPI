@@ -13,7 +13,7 @@ func ConnectEnv() {
 	err := godotenv.Load(".env")
 	//loi ket noi moi truong
 	if err != nil {
-		log.Fatalf("can't connect to environment file; error: %s", err)
+		log.Fatalf("không kết nối được đến file môi trường; lỗi: %s", err)
 	}
 }
 func ConnectMongo() *mongo.Client {
