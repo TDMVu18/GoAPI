@@ -10,29 +10,31 @@ func CreateRouter(app *gin.Engine) {
 
 	auth := app.Group("/auth")
 	{
-		auth.POST("/register", controller.Register)
-		auth.POST("/login", controller.Login)
-		auth.GET("", controller.Auth)
-		auth.GET("/signup", controller.SignUp)
+		auth.POST("/api/register", controller.Register)
+		auth.POST("/api/login", controller.Login)
+		auth.GET("/web", controller.Auth)
+		auth.GET("/web/signup", controller.SignUp)
 	}
 	person := app.Group("/person")
 	{
-		person.Use(middleware.AuthMiddleware())
+		//person.Use(middleware.AuthMiddleware())
 		info := person.Group("/info")
 		{
-			info.POST("", controller.AddPerson)
-			info.GET("/profile", controller.ShowProfile)
-			info.GET("", controller.ListPerson)
-			info.POST("/update", controller.UpdatePersonById)
-			info.POST("/delete", controller.DeletePersonById)
-			info.POST("/appearance", controller.ToggleAppearance)
-			info.POST("/upload", controller.Upload)
+			info.GET("", middleware.AuthMiddleware(), controller.SendHeader)
+			info.POST("/api", controller.AddPerson)
+			info.GET("/web/profile", controller.ShowProfile)
+			info.POST("/api/upload", controller.Upload)
+			info.GET("/api/check", controller.SendHeader)
+			info.GET("/web", middleware.AuthMiddleware(), controller.ListPerson)
+			info.POST("/api/appearance", controller.ToggleAppearance)
+			info.POST("/api/update", controller.UpdatePersonById)
+			info.POST("/api/delete", controller.DeletePersonById)
+
 		}
 		salary := person.Group("/salary")
 		{
 			salary.POST("", controller.SalaryAdd)
 			salary.GET("", controller.ListSalary)
-			salary.POST("/delete", controller.DeleteSalaryById)
 			salary.POST("/update", controller.UpdateSalaryById)
 			salary.GET("/level", controller.GetSalaryLevels)
 		}

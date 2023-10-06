@@ -25,6 +25,10 @@ import (
 //	})
 //}
 
+func SendHeader(ctx *gin.Context) {
+	ctx.Redirect(http.StatusFound, "/person/info/web")
+}
+
 func ListPerson(ctx *gin.Context) {
 	pageStr := ctx.DefaultQuery("page", "1")
 	page, err := strconv.Atoi(pageStr)
@@ -97,7 +101,7 @@ func AddPerson(ctx *gin.Context) {
 	person.UpdatedAt = &now
 	message := model.ModelCreate(person)
 	fmt.Println(message)
-	ctx.Redirect(http.StatusFound, "/person/info")
+	ctx.Redirect(http.StatusFound, "/person/info/web")
 }
 
 func DeletePersonById(ctx *gin.Context) {
@@ -106,7 +110,7 @@ func DeletePersonById(ctx *gin.Context) {
 	search := ctx.PostForm("search")
 	message := model.ModelDelete(id)
 	fmt.Println(message)
-	redirectURL := fmt.Sprintf("/person/info?page=%s&search=%s", page, search)
+	redirectURL := fmt.Sprintf("/person/info/web?page=%s&search=%s", page, search)
 	ctx.Redirect(http.StatusFound, redirectURL)
 }
 
@@ -129,7 +133,7 @@ func UpdatePersonById(ctx *gin.Context) {
 	message := model.ModelUpdate(person)
 	fmt.Println(message)
 	fmt.Printf("page is %s and search is %s", page, search)
-	redirectURL := fmt.Sprintf("/person/info?page=%s&search=%s", page, search)
+	redirectURL := fmt.Sprintf("/person/info/web?page=%s&search=%s", page, search)
 	ctx.Redirect(http.StatusFound, redirectURL)
 }
 
@@ -157,7 +161,7 @@ func ToggleAppearance(ctx *gin.Context) {
 	message := model.ModelUpdate(person)
 	fmt.Println(message)
 	fmt.Printf("page is %s and search is %s", page, search)
-	redirectURL := fmt.Sprintf("/person/info?page=%s&search=%s", page, search)
+	redirectURL := fmt.Sprintf("/person/info/web?page=%s&search=%s", page, search)
 	ctx.Redirect(http.StatusFound, redirectURL)
 }
 
@@ -229,8 +233,55 @@ func Upload(ctx *gin.Context) {
 		})
 		return
 	}
-	redirectURL := fmt.Sprintf("/person/info/profile?id=%s", id)
+	redirectURL := fmt.Sprintf("/person/info/web/profile?id=%s", id)
 	ctx.Redirect(http.StatusFound, redirectURL)
+}
+
+func GetSalaryLevels(ctx *gin.Context) {
+	collection := initializer.ConnectDB("salary_info")
+	defer initializer.DisconnectDB()
+
+	var salaryLevels []string
+
+	filter := bson.M{}
+
+	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": "Không lấy được dữ liệu lương nhân viên",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	for cursor.Next(context.TODO()) {
+		var result bson.M
+		if err := cursor.Decode(&result); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code":    http.StatusInternalServerError,
+				"message": "Không decode được dữ liệu lương nhân viên",
+				"error":   err.Error(),
+			})
+			return
+		}
+
+		level, ok := result["level"].(string)
+		if !ok {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code":    http.StatusInternalServerError,
+				"message": "Dữ liệu lương nhân viên sai định dạng",
+				"error":   err.Error(),
+			})
+			return
+		}
+
+		salaryLevels = append(salaryLevels, level)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"salaryLevels": salaryLevels,
+	})
 }
 
 func SalaryAdd(ctx *gin.Context) {
@@ -292,62 +343,6 @@ func ListSalary(ctx *gin.Context) {
 		"isLastPage":  isLastPage,
 		"pages":       pages,
 	})
-}
-
-func GetSalaryLevels(ctx *gin.Context) {
-	collection := initializer.ConnectDB("salary_info")
-	defer initializer.DisconnectDB()
-
-	var salaryLevels []string
-
-	filter := bson.M{}
-
-	cursor, err := collection.Find(context.TODO(), filter)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code":    http.StatusInternalServerError,
-			"message": "Không lấy được dữ liệu lương nhân viên",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	for cursor.Next(context.TODO()) {
-		var result bson.M
-		if err := cursor.Decode(&result); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"code":    http.StatusInternalServerError,
-				"message": "Không decode được dữ liệu lương nhân viên",
-				"error":   err.Error(),
-			})
-			return
-		}
-
-		level, ok := result["level"].(string)
-		if !ok {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"code":    http.StatusInternalServerError,
-				"message": "Dữ liệu lương nhân viên sai định dạng",
-				"error":   err.Error(),
-			})
-			return
-		}
-
-		salaryLevels = append(salaryLevels, level)
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"salaryLevels": salaryLevels,
-	})
-}
-
-func DeleteSalaryById(ctx *gin.Context) {
-	id := ctx.Query("id")
-	page := ctx.PostForm("page")
-	message := model.ModelDeleteSalary(id)
-	fmt.Println(message)
-	redirectURL := fmt.Sprintf("/person/salary?page=%s", page)
-	ctx.Redirect(http.StatusFound, redirectURL)
 }
 
 func UpdateSalaryById(ctx *gin.Context) {
@@ -430,6 +425,34 @@ func ListOffice(ctx *gin.Context) {
 	})
 }
 
+func DeleteOfficeById(ctx *gin.Context) {
+	id := ctx.Query("id")
+	page := ctx.PostForm("page")
+	message := model.ModelDeleteOffice(id)
+	fmt.Println(message)
+	redirectURL := fmt.Sprintf("/person/office?page=%s", page)
+	ctx.Redirect(http.StatusFound, redirectURL)
+}
+
+func UpdateOfficeById(ctx *gin.Context) {
+	id := ctx.Query("id")
+	var office model.Office
+	if err := ctx.ShouldBind(&office); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "Xử lý request dữ liệu văn phòng từ form không thành công",
+			"error":   err.Error(),
+		})
+		return
+	}
+	page := ctx.PostForm("page")
+	office.ID, _ = primitive.ObjectIDFromHex(id)
+	message := model.ModelUpdateOffice(office)
+	fmt.Println(message)
+	redirectURL := fmt.Sprintf("/person/office?page=%s", page)
+	ctx.Redirect(http.StatusFound, redirectURL)
+}
+
 func GetOfficeName(ctx *gin.Context) {
 	collection := initializer.ConnectDB("office_info")
 	defer initializer.DisconnectDB()
@@ -475,32 +498,4 @@ func GetOfficeName(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"officeNames": officeNames,
 	})
-}
-
-func DeleteOfficeById(ctx *gin.Context) {
-	id := ctx.Query("id")
-	page := ctx.PostForm("page")
-	message := model.ModelDeleteOffice(id)
-	fmt.Println(message)
-	redirectURL := fmt.Sprintf("/person/office?page=%s", page)
-	ctx.Redirect(http.StatusFound, redirectURL)
-}
-
-func UpdateOfficeById(ctx *gin.Context) {
-	id := ctx.Query("id")
-	var office model.Office
-	if err := ctx.ShouldBind(&office); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code":    http.StatusBadRequest,
-			"message": "Xử lý request dữ liệu văn phòng từ form không thành công",
-			"error":   err.Error(),
-		})
-		return
-	}
-	page := ctx.PostForm("page")
-	office.ID, _ = primitive.ObjectIDFromHex(id)
-	message := model.ModelUpdateOffice(office)
-	fmt.Println(message)
-	redirectURL := fmt.Sprintf("/person/office?page=%s", page)
-	ctx.Redirect(http.StatusFound, redirectURL)
 }

@@ -14,7 +14,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		fmt.Println(authHeader)
 		if authHeader == "" {
 			authToken := ctx.DefaultQuery("authToken", "")
-			// Sử dụng authToken từ Local Storage
+			//Sử dụng authToken từ Local Storage
 			tokenString := authToken
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -23,7 +23,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				return []byte(os.Getenv("JWT_PRIVATE_KEY")), nil
 			})
 			if err != nil {
-				ctx.Redirect(http.StatusFound, "/auth")
+				ctx.Redirect(http.StatusFound, "/auth/web")
 				ctx.Abort()
 				return
 			}
@@ -32,11 +32,11 @@ func AuthMiddleware() gin.HandlerFunc {
 				ctx.Next()
 			} else {
 				fmt.Println("Token không hợp lệ")
-				ctx.Redirect(http.StatusFound, "/auth")
+				ctx.Redirect(http.StatusFound, "/auth/web")
 				ctx.Abort()
 				return
 			}
-			ctx.Redirect(http.StatusOK, "/person/info")
+			ctx.Redirect(http.StatusFound, "/person/info/web")
 		}
 	}
 }

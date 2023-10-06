@@ -13,7 +13,7 @@
         <div class="card md-0">
             <div class="card-header">Login</div>
             <div class="card-body">
-                <form id="loginForm" action="/auth/login" method="POST">
+                <form id="loginForm" method="POST">
                     <div class="mb-3">
                         <label for="userName" class="form-label">Username:</label>
                         <input class="form-control" type="text" id="userName" name="userName" required>
@@ -38,7 +38,7 @@
         const password = document.getElementById("password").value;
 
         // Gửi thông tin đăng nhập về API go
-        fetch("/auth/login", {
+        fetch("/auth/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -47,7 +47,6 @@
         })
             .then(response => response.json())
             .then(data => {
-                if (data.token) {
                     localStorage.setItem("authToken", data.token);
                     let authToken = data.token;
                     fetch("/person/info", {
@@ -60,9 +59,7 @@
                         .catch(error => console.error("Error:", error));
 
                     document.getElementById("loginForm").reset();
-                } else {
-                    alert(data.message);
-                }
+
             })
             .catch(error => console.error("Error:", error));
     });

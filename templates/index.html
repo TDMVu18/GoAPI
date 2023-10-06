@@ -13,7 +13,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16"> <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z"/> </svg>
         </button>
     </a>
-    <a style="float:left" class="btn" href="/person/info">
+    <a style="float:left" class="btn" href="/person/info/web">
         <button>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M21 13v10h-6v-6h-6v6h-6v-10h-3l12-12 12 12h-3zm-1-5.907v-5.093h-3v2.093l3 3z"/></svg>
         </button>
@@ -41,7 +41,7 @@
                 <div class="input-group mb-3">
 
                     <div class="input-group-append">
-                        <form class="input-group d-flex" action="/person/info" method="get">
+                        <form class="input-group d-flex" action="/person/info/web" method="get">
                             <input type="text" class="form-control" value="{{.search}}" placeholder="Search" required="1" name="search">
                             <button class="btn btn-outline-secondary" type="submit">
                                 <svg width="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -69,12 +69,12 @@
                     {{range $index, $element := .data}}
                     <tr>
                         <td>{{add $index $.currentPage}}</td>
-                        <td><a href="/person/info/profile?id={{._id.Hex}}">{{shortenData $element.name 15}}</a></td>
-                        <td>{{shortenData $element.major 15}}</td>
+                        <td><a href="/person/info/web/profile?id={{._id.Hex}}">{{shortenData $element.name 30}}</a></td>
+                        <td>{{shortenData $element.major 30}}</td>
                         <td><b>{{$element.level}}</b></td>
                         <td><b>{{$element.office}}</b></td>
                         <td class="d-flex justify-content-center">
-                            <form action="/person/info/appearance?id={{._id.Hex}}" method="post">
+                            <form action="/person/info/api/appearance?id={{._id.Hex}}" method="post">
                                 <input type="hidden" name="name" value="{{$element.name}}">
                                 <input type="hidden" name="major" value="{{$element.major}}">
                                 <input type="hidden" name="level" value="{{$element.level}}">
@@ -108,7 +108,7 @@
                     <!-- Modal Delete -->
 
                     <div id="modaldelete{{$index}}" class="modal fade" role="dialog">
-                        <form action="/person/info/delete?id={{._id.Hex}}" method="POST">
+                        <form action="/person/info/api/delete?id={{._id.Hex}}" method="POST">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -138,7 +138,7 @@
 
                         <div id="modaledit{{$index}}" class="modal fade" role="dialog">
                         <div class="modal-dialog">
-                            <form action="/person/info/update?id={{._id.Hex}}" method="POST">
+                            <form action="/person/info/api/update?id={{._id.Hex}}" method="POST">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h4 class="modal-title">Update Data</h4>
@@ -231,7 +231,7 @@
 
             <!-- Modal Add-->
             <div id="mymodal" class="modal fade" role="dialog">
-                <form action="/person/info" method="POST">
+                <form action="/person/info/api" method="POST">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -300,7 +300,7 @@
     var navpre = document.getElementById('prev-id');
 
     // Truyền giá trị của tham số "search" vào thuộc tính href của thẻ <a>
-    navpre.href = "/person/info?page={{.prevPage}}&search=" + searchParam;
+    navpre.href = "/person/info/web?page={{.prevPage}}&search=" + searchParam;
 
 </script>
 <script>
@@ -310,7 +310,7 @@
     }
     var navnxt = document.getElementById('next-id');
 
-    navnxt.href = "/person/info?page={{.nextPage}}&search=" + getParam;
+    navnxt.href = "/person/info/web?page={{.nextPage}}&search=" + getParam;
 </script>
 
 <script>
@@ -320,7 +320,7 @@
     }
     pagetext = document.getElementById('page-nav').text
     var navpage = document.getElementById('page-nav');
-    navpage.href = "/person/info?page=" + pagetext + "&search=" + pageSearch;
+    navpage.href = "/person/info/web?page=" + pagetext + "&search=" + pageSearch;
 </script>
 <script>
     var page = new URLSearchParams(window.location.search).get("page")
