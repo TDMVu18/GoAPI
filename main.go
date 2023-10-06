@@ -3,10 +3,19 @@ package main
 import (
 	"GoAPI/routes"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"html/template"
 	"time"
 )
+
+type SessionFuncMap struct {
+	Session sessions.Session
+}
+
+//func (s SessionFuncMap) Get(key interface{}) interface{} {
+//	return s.Session.Get(key)
+//}
 
 func add(num, page int) int {
 	return num + 6*(page-1) + 1

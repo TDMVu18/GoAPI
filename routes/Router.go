@@ -2,7 +2,6 @@ package routes
 
 import (
 	"GoAPI/controller"
-	"GoAPI/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,12 +19,12 @@ func CreateRouter(app *gin.Engine) {
 		//person.Use(middleware.AuthMiddleware())
 		info := person.Group("/info")
 		{
-			info.GET("", middleware.AuthMiddleware(), controller.SendHeader)
+			info.GET("", controller.SendHeader)
 			info.POST("/api", controller.AddPerson)
 			info.GET("/web/profile", controller.ShowProfile)
 			info.POST("/api/upload", controller.Upload)
 			info.GET("/api/check", controller.SendHeader)
-			info.GET("/web", middleware.AuthMiddleware(), controller.ListPerson)
+			info.GET("/web", controller.ListPerson)
 			info.POST("/api/appearance", controller.ToggleAppearance)
 			info.POST("/api/update", controller.UpdatePersonById)
 			info.POST("/api/delete", controller.DeletePersonById)

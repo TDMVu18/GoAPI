@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"GoAPI/helper"
 	"GoAPI/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -90,18 +89,4 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	// Tạo JWT và trả về cho client
-	token, err := helper.CreateJwt(entry)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code":    http.StatusBadRequest,
-			"message": "Không tạo được token",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"token": token,
-	})
 }
