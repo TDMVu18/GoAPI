@@ -69,6 +69,7 @@ func ListPerson(ctx *gin.Context) {
 	} else {
 		isLastPage = true
 	}
+
 	// Render template
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"data":        currentPageData,

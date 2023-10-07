@@ -32,6 +32,10 @@ func (account *Account) Save() (*Account, error) {
 	return account, nil
 }
 
+func IsAccountValid(username, password string) bool {
+	return false
+}
+
 // hash mật khẩu
 func (account *Account) PreProcess() error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)

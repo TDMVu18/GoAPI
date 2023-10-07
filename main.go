@@ -2,8 +2,8 @@ package main
 
 import (
 	"GoAPI/routes"
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"html/template"
 	"time"
@@ -13,9 +13,9 @@ type SessionFuncMap struct {
 	Session sessions.Session
 }
 
-//func (s SessionFuncMap) Get(key interface{}) interface{} {
-//	return s.Session.Get(key)
-//}
+func (s SessionFuncMap) Get(key interface{}) interface{} {
+	return s.Session.Get(key)
+}
 
 func add(num, page int) int {
 	return num + 6*(page-1) + 1
@@ -41,6 +41,9 @@ func formatTimestamp(timestamp primitive.DateTime) string {
 func main() {
 	r := gin.Default()
 	r.SetFuncMap(template.FuncMap{
+		"session": func(ctx *gin.Context) SessionFuncMap {
+			return SessionFuncMap{Session: sessions.Default(ctx)}
+		},
 		"add":             add,
 		"formatTimestamp": formatTimestamp,
 		"shortenData":     shortenData,

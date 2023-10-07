@@ -3,14 +3,16 @@ package controller
 import (
 	"GoAPI/model"
 	"fmt"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 )
 
 func Auth(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "login.html", gin.H{
-		"render": "render",
+		"login": "login",
 	})
 }
 
@@ -88,5 +90,9 @@ func Login(ctx *gin.Context) {
 		})
 		return
 	}
-
+	sessionID := uuid.NewV4().String()
+	session := sessions.Default(ctx)
+	session.Set("sessionID", sessionID)
+	session.Save()
+	ctx.Redirect(http.StatusFound, "/person/info/web")
 }
